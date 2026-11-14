@@ -231,24 +231,10 @@ void sk_init(void)
     WORD winsock_ver;
     WSADATA wsadata;
 
-	// ~Aleq debug~
-	SOCKET stemp = SOCKET_ERROR;
-	if (WSAStartup(MAKEWORD(1, 1), &wsadata) != 0) {
-		return;
-	}
-	stemp = socket(AF_INET, SOCK_STREAM, 0);
-	if (stemp == SOCKET_ERROR) {
-		Beep(1000, 100);
-		//
-	} else {
-		Beep(1000, 100);
-	}
-	Beep(1000, 100);
-
-	// ~end debug~
-
 #if !(UNDER_CE > 0 && UNDER_CE < 400)
     winsock_ver = MAKEWORD(2, 0);
+#elif UNDER_CE == 211
+    winsock_ver = MAKEWORD(1, 0);
 #else
     winsock_ver = MAKEWORD(1, 1);
 #endif
@@ -579,6 +565,8 @@ int sk_hostname_is_local(char *name)
 
 #if !(UNDER_CE > 0 && UNDER_CE < 400)
 static INTERFACE_INFO local_interfaces[16];
+#elif UNDER_CE == 211
+/* CE 2.11's Winsock has no IP Helper enumeration API. */
 #else
 static MIB_IPADDRROW local_addrrow[16];
 #endif
@@ -589,7 +577,11 @@ static int ipv4_is_local_addr(struct in_addr addr)
 {
     if (ipv4_is_loopback(addr))
 	return 1;		       /* loopback addresses are local */
-#if (UNDER_CE > 0 && UNDER_CE < 400)
+#if UNDER_CE == 211
+    /* Loopback was handled above. Treat other addresses as non-local when
+     * this Winsock version cannot enumerate the device's interfaces. */
+    return 0;
+#elif (UNDER_CE > 0 && UNDER_CE < 400)
     if (!n_local_interfaces) {
 	unsigned long tableSize = sizeof(DWORD) + 16 * sizeof(MIB_IPADDRROW);
     	PMIB_IPADDRTABLE pIpAddrTable = smalloc(tableSize);

@@ -116,8 +116,12 @@ void noise_regular(void)
     random_add_noise(&w, sizeof(w));
     w = GetClipboardOwner();
     random_add_noise(&w, sizeof(w));
+#if !defined(_WIN32_WCE) || UNDER_CE >= 300
     z = GetQueueStatus(QS_ALLEVENTS);
     random_add_noise(&z, sizeof(z));
+#else
+    z = 0;
+#endif
 
     GetCursorPos(&pt);
     random_add_noise(&pt, sizeof(pt));

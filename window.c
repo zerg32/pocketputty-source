@@ -5104,7 +5104,7 @@ int is_full_screen()
  * one monitor is present. */
 static int get_fullscreen_rect(RECT * ss)
 {
-#ifdef MONITOR_DEFAULTTONEAREST
+#if !defined(_WIN32_WCE) && defined(MONITOR_DEFAULTTONEAREST)
 	HMONITOR mon;
 	MONITORINFO mi;
 	mon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
@@ -5113,6 +5113,11 @@ static int get_fullscreen_rect(RECT * ss)
 
 	/* structure copy */
 	*ss = mi.rcMonitor;
+	return TRUE;
+#elif defined(_WIN32_WCE)
+	ss->left = ss->top = 0;
+	ss->right = GetSystemMetrics(SM_CXSCREEN);
+	ss->bottom = GetSystemMetrics(SM_CYSCREEN);
 	return TRUE;
 #else
 /* could also use code like this:

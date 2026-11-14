@@ -146,7 +146,7 @@ wchar_t *ansi2unicode(const char *source);
 #define BUFSIZ 512
 #endif
 
-#if (UNDER_CE > 0 && UNDER_CE < 400)
+#if (UNDER_CE > 0 && UNDER_CE < 400 && _WIN32_WCE != 211)
 //
 // Pocket PC 2000, 2002
 //
